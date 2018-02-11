@@ -1,6 +1,5 @@
 language: go
 sudo: false
-
 matrix:
   include:
   - go: 1.9
@@ -9,14 +8,21 @@ matrix:
   - go: 1.6
   - go: 1.7
   - go: 1.8
-
 before_install:
 - go get github.com/mitchellh/gox
-
 install:
-    -
+-
 script:
-    - if [ "${LATEST}" = "true" ]; then gox -osarch="linux/amd64"; fi
+- if [ "${LATEST}" = "true" ]; then gox -osarch="linux/amd64"; fi
+
+after_success:
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - export REPO=pwpon500/go-log-server
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  - docker build -f Dockerfile -t $REPO:$COMMIT .
+  - docker tag $REPO:$COMMIT $REPO:$TAG
+  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+  - docker push $REPO
 
 deploy:
   skip_cleanup: true
@@ -27,3 +33,10 @@ deploy:
   - go-log-server_linux_amd64
   on:
     repo: Pwpon500/go-log-server
+
+env:
+  global:
+  - secure: qM5uWXDUFF/jcDFavd/dLFqcaYzGla06IfRTPNmqX4hQFjxUyuFgYAjKENy+X9Kq7P+WkjE9lsSh3VNWiQO7Wnb7hGj3kjBEgXEqWUZGZiZd2Q85UWhOq23S9V468ROnyrMT3h4lu/tLqyh1YPuqtrLWlqls9sD2DbZ6GA+9FQaDF87ASecfitFzO8xrod263+s0mcgUtNQt29LEnSkB/dESs8RlO9yt+BWNnQVLdlRkEFnj1N3KPmGFaywEqOJIrRM/j3fByTYPGUuKvy2gbIcZ+S77nN7OsOQFOgFYsEI842ET5qDMsEBEGQVpoKhNLXQw4Mj4xGO4AaTJ7AJN5LcybpSeN7nVBFbfKPcoQ3WLspkX6TWO+FuLoWcLitDkdMbwoLT8BaENNGYcrd+buhFxFjka5VEU7ZJAF4ae3QJW5lsaUqub6ANV8rG5AGFAZhIToKVT1veBpx4928tmd647o8s02Anxnbt7TVObGg30bAzXu9w4u/bFsTYs+W72XijZ1dc+cjw/AUYMbOytjwA4n9CIV3MsN3LGz3dmgC/XhneBbZWpYZ8pQSUEbT1pf2zLiAxUKkMkhVirNlJpyu1pO4Fw0k73m4lpo5RRn8eOF/ezs7yl14qN49TC86pkeuvaQFZsbNNykdJmeYI9j22fc/92drxBjH8u81mwLUs=
+  - secure: fdWAmEBgJvILZ6cTe0bOMPRlHv+IDql0K+hcJL+DwZJTsxfpfuG6rft8WTnST8a/HelCKuIC5K1Ns1US765+iCETRapgL+bfmpQv9uvdOIEHkPioMeoauXD48p3zIFY4Gskeiog2j66kmpAQQy4W2OT55ljDx7u7jLZGmJHlj4W+7JSFzYMQ1GgDVgGB9GrTySVpFwjPQSNnsuV+vhF1aV4PhdS87RQUDg6Nlh2p63qQwa6KlFw+HleXoO2rO8cH7qeqLeCOwEP216cK63IEyZ4WmAK1UXFKChooO47gwAIFgXT7HVwANiG4sJ5KqGmBV59JLu+5rp9uNGWE22f3R+NW7qmPEFHI1Hi+cNDq4VlNZQQwzevmrz0dykVkVNbn0rwUdXnm6k4RJNEcL8r9humgxgudYs2Hyc0Tb14HojBL9uUCavzPBHqCGlJ9lYEPJxyhTbFM0GW2/asyRwFoDFecNWy5Q1Rcbxkpvcq4vhzgFlBeTW3iGHQTOhFyrNosLoawNqb13DGFvFJ13LneqwfrdOpJQw4MY6ZGfsseIITahmTf7nFuE4hKT5P2l62Ouzi9d7RYtBqSQ+ngoCTwpNy0b5w5Kq2HmHoah2bCrPOuXeHV09gO553cy3yOn7lqcy72vulLq1PhnQED/8V1U7fJ40S1kBRSk4L/XoC0JVc=
+  - secure: ZtsX7QjGV4/u756nTpv+vBunmGiPXAKMmoZYPkYJ/568GZMAErvFjI6KsSumK7s3w+sxAb8vsqDXOB18boNM29lclNDojAgjhvVkrKowm5Q7egpVvyU6gsJP7ktPG3xiYYgqyvcaa15sesFE9QFNDQK1ZJUNUAseHKUHwFJOJAwdYD1k9MpGQce5LVN4YQaV1RZ3z3ZgJ6a0PrRcTntSN8SurJ8ZvRPPstFXAiEDT70xxz8fnbCtI7D3Z893CpqktN4QaMrrC3XaDQ6xbHDVUBtuOjF5+EmiIBqVEY8V8gDE/diuOIPDS8UoVBS0RLHustemrDFkwb3jtqgmwj6G17k+mWEuqfDiKPuPXosW3Pv3h2Pzj9Fjf/8IhZtdCEJ/SbGvLKY3ZiNz14Qe7u7vILPvkjUdWBGPqaLp9ds2DLhi2nO6LV7UmH8D+95Sdh5JCm0cIlZrAnPYXuf/UdVMioO5Zt5PZX7hf8gSoM28UkJm02mW2lYv84HCN9XzJeH4IurXangbiQKnwKVLQd3AyZCoQ/nbZ+D5/ReC7StZppvkiOqXozdySxQmMwr06fTBqXeUEJBiGXpDUsyd2OrBSNsWmmL5EJY+G0NzxPzgIYFP2mvg0yhj9/QtYr3+ssczMKTyT7Vfzq3wSCpUdpLGumTPGftO0fkqz17F3x0FwPI=
+  - COMMIT=${TRAVIS_COMMIT::8}
