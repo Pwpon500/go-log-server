@@ -1,6 +1,6 @@
-FROM golang:alpine
+FROM golang
 
-ADD go-log-server_linux_amd64 /
-RUN mv /go-log-server_linux_amd64 /go-log-server
+ADD go-log-server_linux_amd64 /go-log-server
 
 ENTRYPOINT ["/go-log-server"]
+
