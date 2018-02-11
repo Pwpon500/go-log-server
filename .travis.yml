@@ -23,9 +23,9 @@ after_success:
   - docker tag $REPO:$COMMIT $REPO:$TAG
   - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
   - docker push $REPO
-  on:
-    repo: Pwpon500/go-log-server
-    condition: $LATEST = true
+    #  on:
+    #    repo: Pwpon500/go-log-server
+    #    condition: $LATEST = true
 
 deploy:
   skip_cleanup: true
@@ -36,7 +36,6 @@ deploy:
   - go-log-server_linux_amd64
   on:
     repo: Pwpon500/go-log-server
-    tags: true
     condition: $LATEST = true
 
 env:
