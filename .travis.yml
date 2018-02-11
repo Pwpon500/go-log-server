@@ -1,0 +1,33 @@
+language: go
+sudo: false
+
+matrix:
+  include:
+  - go: 1.9
+    env: LATEST=true
+  - go: 1.5
+  - go: 1.6
+  - go: 1.7
+  - go: 1.8
+  - go: tip
+  allow_failures:
+  - go: tip
+
+before_install:
+- go get github.com/mitchellh/gox
+
+install:
+    -
+script:
+- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -arch="amd64" -output="logshare.."
+
+deploy:
+  provider: releases
+  api_key:
+    secure: fMGHyW0wKomslIrOqgYKW1PwXU0hm1mdnLgDYBlTZcEZt/CV29Bfj3KvH4t+sruwhK0PQM9aSXm6ZWKlWWGDSa21ArXFjkmZm/fxF88fFropWlHUiVHAVGdMj9/aZj0Dqd5DlB15m20ZP8D1CLBuH8oLEw/RoVdQyfSQBYYXw3OhXC7/R8ZTfGh8WltJ46XGdz9Q3T6mX2ds4/+OHzSfT/9cfdzKrhStTWiQGtj6g6DT3O6iI0oY///+dVMzUiyEJRpN8jRUE3OStwPqpVpHY6JRxFy4ShwaoHAIb0wg+RUjIoM6+/w0sXHGMAQNBf4p6wuu1RuWcPmuaHE5SwCeBHA1lvsRhwIPw0L/L7NSPTCi0o5CWUettUH30Rv5HboH4pXqVgw2v2NeBHetGliVSaDrDtPURG3J0MvI4krSU2rt3RxKrovlhaYmQnWAxgJXXZ6N48YVyCTd/DgdtK729Iu3V8mrIYg+yRHxY1qdB7xputH5fsiptN81nm/HVUTHi9xtz7GobzrRpfY25tIdC7A+yl4y+MUz0awgjtp0UH5ZGUTE9KQO4DULktP9o84S1biykUGx5XDoR37de+4uCrva2ijTU59lVAambZ3UwS/Q4y6Z7rvIc3feMUsRibPDQWRQ3pqtVgTNNXvU+qGrzkv/5auh3xF/tNaILZrh1lg=
+  file:
+  - go-log-server.linux.amd64
+  - go-log-server.darwin.amd64
+  - go-log-server.windows.amd64.exe
+  on:
+    repo: Pwpon500/go-log-server
