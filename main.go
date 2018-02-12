@@ -25,14 +25,17 @@ var (
 	port        = flag.Int("port", 514, "port to listen on")
 	proto       = flag.String("proto", "tcp", "protocol to use")
 	redisServer = flag.String("redisServer", "localhost:6379", "address and port for redis server")
+	maxLen      = flag.Int("maxLen", 1000000, "maximum stream size")
+	exactMax    = flag.Bool("exactMax", false, "require exactly maxLen entries")
 	pool        *redis.Pool
+	baseArgs    = redis.Args{}
 )
 
 type logResponse struct {
-	Timestamp string `json:"@timestamp"`
-	Message   string `json:"message"`
 	Host      string `json:"sysloghost"`
+	Timestamp string `json:"@timestamp"`
 	Severity  string `json:"severity"`
+	Message   string `json:"message"`
 }
 
 var sevs string
@@ -46,6 +49,15 @@ func main() {
 
 	listener, err := net.Listen(*proto, *host+":"+strconv.Itoa(*port))
 	handleErr(err)
+	baseArgs = baseArgs.Add("logs")
+	if *maxLen != 0 {
+		baseArgs = baseArgs.Add("MAXLEN")
+		if !*exactMax {
+			baseArgs = baseArgs.Add("~")
+		}
+		baseArgs = baseArgs.Add(strconv.Itoa(*maxLen))
+	}
+	baseArgs = baseArgs.Add("*")
 
 	pool = newPool(*redisServer)
 
@@ -79,6 +91,6 @@ func handleRequest(conn net.Conn, redisConn redis.Conn) {
 	json.Unmarshal(response, &data)
 
 	if strings.Contains(sevs, data.Severity) && data.Severity != "" {
-		redisConn.Do("XADD", "logs", "*", "host", data.Host, "timestamp", data.Timestamp, "severity", data.Severity, "message", data.Message)
+		redisConn.Do("XADD", baseArgs.AddFlat(data)...)
 	}
 }
