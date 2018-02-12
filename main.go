@@ -29,6 +29,7 @@ var (
 	exactMax    = flag.Bool("exactMax", false, "require exactly maxLen entries")
 	pool        *redis.Pool
 	baseArgs    = redis.Args{}
+	sevs        string
 )
 
 type logResponse struct {
@@ -37,8 +38,6 @@ type logResponse struct {
 	Severity  string `json:"severity"`
 	Message   string `json:"message"`
 }
-
-var sevs string
 
 func main() {
 	flag.Parse()
