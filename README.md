@@ -20,7 +20,7 @@ template(name="json-template"
 ```
 
 go-log-server uses TCP as the transport protocol for logs. In rsyslog, TCP messages can be sent by following this format:
-````
+```
 ## send to syslog server
 *.*                         @@server_ip:514;json-template
 ```
