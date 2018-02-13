@@ -27,6 +27,7 @@ var (
 	redisServer = flag.String("redisServer", "localhost:6379", "address and port for redis server")
 	maxLen      = flag.Int("maxLen", 1000000, "maximum stream size")
 	exactMax    = flag.Bool("exactMax", false, "require exactly maxLen entries")
+	isClient    = flag.Bool("c", false, "run as client")
 	pool        *redis.Pool
 	baseArgs    = redis.Args{}
 	sevs        string
@@ -41,6 +42,19 @@ type logResponse struct {
 
 func main() {
 	flag.Parse()
+
+	if *isClient {
+		client()
+	} else {
+		server()
+	}
+}
+
+func client() {
+
+}
+
+func server() {
 	sevs = strings.Join(flag.Args(), "")
 	if sevs == "" {
 		sevs = "emergalertcriterr"
